@@ -3,6 +3,8 @@ import numpy as np
 
 video = cv2.VideoCapture("E:\\Desktop\\機器學習\\期中作業\\LaneVideo.mp4")
 #print(img.shape, img.size)  # 得到 (1258, 2272) 2858176
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')          
+out = cv2.VideoWriter('林鑫宏_期中作業.mp4', fourcc, 30.0, (640,  400)) 
 
 while True:
     ww, hh, rh, r = 640, 400, 0.6, 3
@@ -45,7 +47,7 @@ while True:
     output = cv2.dilate(output, kernel)  # 膨脹
     #cv2.imshow('oxxostudio', output); cv2.waitKey(0)
 
-    output = cv2.GaussianBlur(output, (5, 5), 0)  # 指定區域單位為 (5,5)
+    output = cv2.GaussianBlur(output, (3, 3), 0)  # 指定區域單位為 (5,5)
     #output = cv2.medianBlur(output, 5)
     #cv2.imshow('oxxostudio', output); cv2.waitKey(0)
 
@@ -53,7 +55,7 @@ while True:
     #cv2.imshow('oxxostudio', output); cv2.waitKey(0)
 
     output = cv2.Canny(output, 150, 200)  # 偵測邊緣
-    cv2.imshow('123', output); cv2.waitKey(1)
+    cv2.imshow('123', output); cv2.waitKey(25)
 
     # 計算仿射變換矩陣
     M = cv2.getPerspectiveTransform(pts2,pts1)
@@ -62,7 +64,7 @@ while True:
     output = cv2.warpPerspective(output, M, (ww, hh))
     #cv2.imshow('幾何仿射', output); cv2.waitKey(0)
 
-    HOUGH_THRESHOLD, HOUGH_MIN_LINE_LENGTH, HOUGH_MAX_LINE_GAP = 30, 15, 70
+    HOUGH_THRESHOLD, HOUGH_MIN_LINE_LENGTH, HOUGH_MAX_LINE_GAP = 30, 10, 70
     lines = cv2.HoughLinesP(output, 1, np.pi / 180, HOUGH_THRESHOLD, None, HOUGH_MIN_LINE_LENGTH, HOUGH_MAX_LINE_GAP)
 
     done, s1, s2, b1, b2 = 0, 0, 0, 0, 0
@@ -85,7 +87,7 @@ while True:
             cv2.line(img2, (x1, y1), (x2, y2),(255,0,0), 2)
             print("@",s,x1,y1,x2,y2, "done", done)
             cv2.imshow('132',img2)
-            cv2.waitKey(0)
+            cv2.waitKey(1)
             '''
             
             if min(x1, x2) < 30 or max(x1, x2) > ww-30: continue
@@ -113,7 +115,7 @@ while True:
         pts = np.array(area)
         mask = cv2.fillPoly(zero, [pts], (0, 50, 0))
         img2 = cv2.addWeighted(img2,1.0, mask,1.0, 0)
-        cv2.imshow('oxxostudio', img2); cv2.waitKey(1)
+        cv2.imshow('oxxostudio', img2); cv2.waitKey(25)
 
 
 
@@ -128,8 +130,12 @@ while True:
     
     cv2.imshow('viedo', img2); 
     
-    if cv2.waitKey(1) == ord('q'):
+    out.write(img2)
+
+
+    if cv2.waitKey(25) == ord('q'):
         break
     
 video.release()
+out.release()
 cv2.destroyAllWindows()
